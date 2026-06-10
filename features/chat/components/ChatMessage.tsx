@@ -1,10 +1,19 @@
 "use client";
 
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { Copy, Check, Bot, User } from "lucide-react";
+
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
+
+import {
+  Avatar,
+  AvatarFallback,
+} from "@/components/ui/avatar";
 
 import { Message } from "../types/chat.types";
 
@@ -17,19 +26,60 @@ export default function ChatMessage({
 }: Props) {
   const isUser = message.role === "user";
 
+  const [copied, setCopied] =
+    useState(false);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(
+        message.content
+      );
+
+      setCopied(true);
+
+      setTimeout(() => {
+        setCopied(false);
+      }, 2000);
+    } catch (error) {
+      console.error(
+        "Copy failed:",
+        error
+      );
+    }
+  };
+
   return (
-    <div
-      className={`flex ${
+    <motion.div
+      initial={{
+        opacity: 0,
+        y: 10,
+      }}
+      animate={{
+        opacity: 1,
+        y: 0,
+      }}
+      transition={{
+        duration: 0.2,
+      }}
+      className={`flex gap-3 ${
         isUser
           ? "justify-end"
           : "justify-start"
       }`}
     >
+      {!isUser && (
+        <Avatar className="h-9 w-9 shrink-0">
+          <AvatarFallback>
+            <Bot size={18} />
+          </AvatarFallback>
+        </Avatar>
+      )}
+
       <div
-        className={`max-w-3xl rounded-3xl px-5 py-4 ${
+        className={`max-w-3xl rounded-3xl px-5 py-4 shadow-sm ${
           isUser
             ? "bg-primary text-primary-foreground"
-            : "bg-muted"
+            : "border bg-card"
         }`}
       >
         <ReactMarkdown
@@ -58,7 +108,7 @@ export default function ChatMessage({
                   )}
                 </SyntaxHighlighter>
               ) : (
-                <code className={className}>
+                <code className="rounded bg-muted px-1 py-0.5">
                   {children}
                 </code>
               );
@@ -67,7 +117,46 @@ export default function ChatMessage({
         >
           {message.content}
         </ReactMarkdown>
+
+        <div className="mt-3 flex items-center justify-between">
+          <p className="text-xs text-muted-foreground">
+            {message.createdAt &&
+              new Date(
+                message.createdAt
+              ).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+          </p>
+
+          {!isUser && (
+            <button
+              onClick={handleCopy}
+              className="flex items-center gap-2 text-xs text-muted-foreground transition-colors hover:text-foreground"
+            >
+              {copied ? (
+                <>
+                  <Check size={14} />
+                  Copied
+                </>
+              ) : (
+                <>
+                  <Copy size={14} />
+                  Copy
+                </>
+              )}
+            </button>
+          )}
+        </div>
       </div>
-    </div>
+
+      {isUser && (
+        <Avatar className="h-9 w-9 shrink-0">
+          <AvatarFallback>
+            <User size={18} />
+          </AvatarFallback>
+        </Avatar>
+      )}
+    </motion.div>
   );
 }

@@ -1,24 +1,40 @@
 import { ai } from "@/lib/ai/gemini";
 import { SYSTEM_PROMPT } from "@/lib/ai/prompts";
+import { buildConversationContext }
+  from "@/lib/ai/context-manager";
+interface Message {
+  role: "user" | "assistant";
+  content: string;
+}
 
 export async function generateAIResponse(
-  userMessage: string
+  userMessage: string,
+  messages: Message[]
 ) {
-    try{
-        const response =
-            await ai.models.generateContent({
-            model: "gemini-2.5-flash",
-            contents: `
-        ${SYSTEM_PROMPT}
+  try {
+    const recentMessages =
+      messages.slice(-10);
 
-        User:
-        ${userMessage}
-        `,
-            });
+   const context =
+  buildConversationContext(
+    messages,
+    userMessage
+  );
 
-        return response.text;
-   } catch (error) {
-        console.error("Error generating AI response:", error);
-        return "TalentSync AI is currently unavailable. Please try again later.";
+    const response =
+      await ai.models.generateContent({
+        model: "gemini-2.5-flash",
+        contents: `
+            ${SYSTEM_PROMPT}
+
+            ${context}
+            `,
+        });
+
+    return response.text;
+  } catch (error) {
+    console.error(error);
+
+    return "TalentSync AI is currently unavailable. Please try again later.";
   }
 }

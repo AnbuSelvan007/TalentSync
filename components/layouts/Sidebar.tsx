@@ -6,10 +6,15 @@ import { Plus } from "lucide-react";
 
 import { navigation } from "@/config/navigation";
 import { Button } from "@/components/ui/button";
+import { useChatStore } from "@/store/chat-store";
+import RecentChats from "@/features/chat/components/RecentChats";
 
 export default function Sidebar() {
   const pathname = usePathname();
-
+  const createChat =
+  useChatStore(
+    (state) => state.createChat
+  );
   return (
     <aside className="hidden md:flex w-72 flex-col border-r bg-background/50 backdrop-blur-xl">
       
@@ -30,10 +35,20 @@ export default function Sidebar() {
   h-12
   shadow-lg
 "
+ onClick={() => {
+  if (
+    window.confirm(
+      "Start a new chat?"
+    )
+  ) {
+    createChat();
+  }
+}}
 >
           <Plus />
           New Chat
         </Button>
+        <RecentChats />
       </div>
 
       <div className="p-4 flex-1">

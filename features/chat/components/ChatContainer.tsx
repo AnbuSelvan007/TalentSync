@@ -1,6 +1,10 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import {
+  useState,
+  useEffect,
+  useRef,
+} from "react";
 
 import { useChatStore } from "@/store/chat-store";
 
@@ -13,7 +17,18 @@ import TypingIndicator from "./TypingIndicator";
 import { generateAIResponse } from "../services/chat.service";
 
 export default function ChatContainer() {
-  const { messages, setMessages } = useChatStore();
+  const {
+    chats,
+    currentChatId,
+    addMessage,
+  } = useChatStore();
+
+  const currentChat = chats.find(
+    (chat) => chat.id === currentChatId
+  );
+
+  const messages =
+    currentChat?.messages ?? [];
 
   const [isLoading, setIsLoading] =
     useState(false);
@@ -34,6 +49,7 @@ export default function ChatContainer() {
       id: crypto.randomUUID(),
       role: "user" as const,
       content,
+      createdAt: new Date().toISOString(),
     };
 
     const updatedMessages = [
@@ -41,13 +57,16 @@ export default function ChatContainer() {
       userMessage,
     ];
 
-    setMessages(updatedMessages);
+    addMessage(userMessage);
 
     try {
       setIsLoading(true);
 
       const aiResponse =
-        await generateAIResponse(content);
+        await generateAIResponse(
+          content,
+          updatedMessages
+        );
 
       const assistantMessage = {
         id: crypto.randomUUID(),
@@ -55,12 +74,12 @@ export default function ChatContainer() {
         content:
           aiResponse ||
           "No response received.",
+        createdAt: new Date().toISOString(),
       };
 
-      setMessages([
-        ...updatedMessages,
-        assistantMessage,
-      ]);
+      addMessage(
+        assistantMessage
+      );
     } catch (error) {
       console.error(error);
 
@@ -69,12 +88,10 @@ export default function ChatContainer() {
         role: "assistant" as const,
         content:
           "TalentSync AI is currently busy. Please try again.",
+        createdAt: new Date().toISOString(),
       };
 
-      setMessages([
-        ...updatedMessages,
-        errorMessage,
-      ]);
+      addMessage(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -82,19 +99,16 @@ export default function ChatContainer() {
 
   return (
     <div className="flex h-full flex-col">
-      <ChatHeader />
 
       <div className="flex-1 overflow-auto">
         {messages.length === 0 ? (
           <ChatWelcome
-            onSuggestionClick={(
-              prompt
-            ) => {
-              handleSend(prompt);
-            }}
+            onSuggestionClick={
+              handleSend
+            }
           />
         ) : (
-          <div className="mx-auto max-w-4xl space-y-4 p-6">
+          <div className="mx-auto max-w-5xl space-y-6 p-6">
             {messages.map(
               (message) => (
                 <ChatMessage

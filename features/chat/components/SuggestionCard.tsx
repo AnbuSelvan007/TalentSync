@@ -1,10 +1,13 @@
+import { LucideIcon } from "lucide-react";
 interface SuggestionCardProps {
   title: string;
   description: string;
+  icon: LucideIcon;
   onClick?: () => void;
 }
 
 export default function SuggestionCard({
+  icon: Icon,
   title,
   description,
   onClick,
@@ -26,6 +29,7 @@ hover:-translate-y-1
 hover:shadow-xl
 "
     >
+      <Icon className="mb-3 h-6 w-6" />
      <h3 className="font-semibold text-lg">
         {title}
       </h3>

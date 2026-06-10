@@ -1,30 +1,108 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
-interface Message {
-  id: string;
-  role: "user" | "assistant";
-  content: string;
-}
+import {
+  Chat,
+  Message,
+} from "@/features/chat/types/chat.types";
 
 interface ChatStore {
-  messages: Message[];
+  chats: Chat[];
+  currentChatId: string;
 
-  setMessages: (
-    messages: Message[]
+  createChat: () => void;
+
+  addMessage: (
+    message: Message
   ) => void;
 
-  clearChat: () => void;
+  switchChat: (
+    chatId: string
+  ) => void;
+
+  clearCurrentChat: () => void;
 }
 
 export const useChatStore =
-  create<ChatStore>((set) => ({
-    messages: [],
+  create<ChatStore>()(
+    persist(
+      (set) => {
+        const initialChat: Chat = {
+          id: crypto.randomUUID(),
+          title: "New Chat",
+          messages: [],
+        };
 
-    setMessages: (messages) =>
-      set({ messages }),
+        return {
+          chats: [initialChat],
 
-    clearChat: () =>
-      set({
-        messages: [],
-      }),
-  }));
+          currentChatId:
+            initialChat.id,
+
+          createChat: () => {
+            const newChat: Chat = {
+              id: crypto.randomUUID(),
+              title: "New Chat",
+              messages: [],
+            };
+
+            set((state) => ({
+              chats: [
+                newChat,
+                ...state.chats,
+              ],
+              currentChatId:
+                newChat.id,
+            }));
+          },
+
+          switchChat: (
+            chatId
+          ) => {
+            set({
+              currentChatId:
+                chatId,
+            });
+          },
+
+          addMessage: (
+            message
+          ) => {
+            set((state) => ({
+              chats: state.chats.map(
+                (chat) =>
+                  chat.id ===
+                  state.currentChatId
+                    ? {
+                        ...chat,
+                        messages: [
+                          ...chat.messages,
+                          message,
+                        ],
+                      }
+                    : chat
+              ),
+            }));
+          },
+
+          clearCurrentChat: () => {
+            set((state) => ({
+              chats: state.chats.map(
+                (chat) =>
+                  chat.id ===
+                  state.currentChatId
+                    ? {
+                        ...chat,
+                        messages: [],
+                      }
+                    : chat
+              ),
+            }));
+          },
+        };
+      },
+      {
+        name: "talentsync-chat-v2",
+      }
+    )
+  );
