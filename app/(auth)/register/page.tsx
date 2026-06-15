@@ -5,7 +5,7 @@ import RegisterForm from "@/features/auth/components/RegisterForm";
 
 export default async function RegisterPage() {
   const session = await getServerSession(authOptions);
-  if (session) redirect("/dashboard");
+  if (session) redirect("/");
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-background via-muted/30 to-background p-4">
