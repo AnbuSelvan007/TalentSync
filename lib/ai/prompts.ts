@@ -37,6 +37,119 @@ Example: ["Question 1", "Question 2", "Question 3"]
 Do NOT include any markdown, explanations, or code blocks — only the raw JSON array.
 `;
 
+export const ROADMAP_GENERATION_PROMPT = `
+You are an expert career advisor and technical curriculum designer.
+
+Generate a structured, detailed learning roadmap for the following:
+- Goal: {GOAL}
+- Current Skill Level: {SKILL_LEVEL}
+- Timeline: {TIMELINE}
+
+The roadmap should span {MONTHS} months. For each month, provide:
+1. A meaningful month title
+2. 3-6 specific topics to learn
+3. For each topic, a brief description and 2-3 recommended resources (mix of video tutorials, documentation, articles, and practice platforms)
+
+Return ONLY valid JSON in this exact format:
+{
+  "months": [
+    {
+      "month": 1,
+      "title": "Month title here",
+      "topics": [
+        {
+          "name": "Topic name",
+          "description": "Brief description of what to learn",
+          "resources": [
+            { "title": "Resource title", "type": "video" },
+            { "title": "Resource title", "type": "documentation" },
+            { "title": "Resource title", "type": "practice" }
+          ]
+        }
+      ]
+    }
+  ]
+}
+
+Rules:
+- Be specific and practical. Include real technologies, frameworks, and tools.
+- Start with fundamentals and progressively increase complexity.
+- For Beginners: start with basics, include lots of hands-on practice.
+- For Intermediate: skip basics, focus on deeper concepts and real-world projects.
+- For Advanced: focus on architecture, performance, system design, and advanced patterns.
+- Adjust the depth and number of topics based on the timeline length.
+- Return ONLY the JSON object, no markdown, no code fences, no explanations.
+`;
+
+export const JOB_MATCH_ANALYSIS_PROMPT = `
+You are an expert ATS and job matching analyst.
+
+Compare the following RESUME against the JOB DESCRIPTION.
+
+RESUME:
+{RESUME_TEXT}
+
+JOB DESCRIPTION:
+{JD_TEXT}
+
+Analyze the match and return ONLY valid JSON in this exact format:
+{
+  "matchScore": <number 0-100>,
+  "matchingSkills": ["skill1", "skill2"],
+  "missingSkills": ["skill1", "skill2"],
+  "keywordsFound": ["keyword1", "keyword2"],
+  "keywordsMissing": ["keyword1", "keyword2"],
+  "suggestions": ["suggestion1", "suggestion2"]
+}
+
+Scoring guidelines:
+- 90-100: Excellent match - almost all requirements met
+- 70-89: Good match - most requirements met, minor gaps
+- 50-69: Average match - some requirements met, significant gaps
+- 30-49: Poor match - few requirements met
+- 0-29: Very poor match - most requirements not met
+
+Rules:
+- matchingSkills: skills present in both resume AND job description
+- missingSkills: skills mentioned in job description but absent in resume
+- keywordsFound: ATS keywords from job description found in resume
+- keywordsMissing: important ATS keywords from job description not found in resume
+- suggestions: actionable resume improvements, technologies to learn, project ideas to add
+- Be specific and practical
+- Return ONLY the JSON object, no markdown, no code fences, no explanations
+`;
+
+export const COVER_LETTER_PROMPT = `
+You are an expert professional cover letter writer.
+
+Generate a personalized, ATS-friendly cover letter based on the following information.
+
+APPLICANT INFORMATION:
+- Full Name: {FULL_NAME}
+- Role Applying For: {ROLE}
+- Company Name: {COMPANY}
+- Years of Experience: {EXPERIENCE}
+
+RESUME CONTENT:
+{RESUME_TEXT}
+
+JOB DESCRIPTION:
+{JD_TEXT}
+
+Requirements:
+- Address the cover letter to the company {COMPANY}
+- Mention specific skills and experiences from the resume that are relevant to the job
+- Use a professional, human-like tone — avoid generic phrases and clichés
+- Be concise but impactful (250-400 words)
+- Include a clear opening paragraph, body paragraphs highlighting relevant experience, and a strong closing
+- Format in Markdown with proper structure
+- Do NOT include placeholders like [Your Name] or [Company Name]
+- Make it ATS friendly with clear section breaks
+- The letter should sound like it was written by a real person, not an AI
+
+Return ONLY the cover letter in Markdown format, no additional commentary or metadata.
+`;
+
 export const INTERVIEW_EVALUATION_PROMPT = `
 You are an experienced technical interviewer evaluating a candidate's answer.
 

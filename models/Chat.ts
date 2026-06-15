@@ -1,16 +1,21 @@
-import mongoose, {
-  Schema,
-  model,
-  models,
-} from "mongoose";
+import mongoose, { Schema, model, models } from "mongoose";
 
-const ChatSchema = new Schema(
+export interface IChat {
+  _id?: string;
+  userId: mongoose.Types.ObjectId;
+  title: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+const ChatSchema = new Schema<IChat>(
   {
     userId: {
       type: Schema.Types.ObjectId,
       ref: "User",
+      required: true,
+      index: true,
     },
-
     title: {
       type: String,
       default: "New Chat",
@@ -21,8 +26,6 @@ const ChatSchema = new Schema(
   }
 );
 
-const Chat =
-  models.Chat ||
-  model("Chat", ChatSchema);
+const Chat = models.Chat || model<IChat>("Chat", ChatSchema);
 
 export default Chat;

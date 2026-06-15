@@ -3,80 +3,45 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Copy, Check, Bot, User } from "lucide-react";
-
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
-
-import {
-  Avatar,
-  AvatarFallback,
-} from "@/components/ui/avatar";
-
 import { Message } from "../types/chat.types";
 
 interface Props {
   message: Message;
 }
 
-export default function ChatMessage({
-  message,
-}: Props) {
+export default function ChatMessage({ message }: Props) {
   const isUser = message.role === "user";
-
-  const [copied, setCopied] =
-    useState(false);
+  const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(
-        message.content
-      );
-
+      await navigator.clipboard.writeText(message.content);
       setCopied(true);
-
-      setTimeout(() => {
-        setCopied(false);
-      }, 2000);
-    } catch (error) {
-      console.error(
-        "Copy failed:",
-        error
-      );
+      setTimeout(() => setCopied(false), 2000);
+    } catch (_err) {
+      console.error("Copy failed", _err);
     }
   };
 
   return (
     <motion.div
-      initial={{
-        opacity: 0,
-        y: 10,
-      }}
-      animate={{
-        opacity: 1,
-        y: 0,
-      }}
-      transition={{
-        duration: 0.2,
-      }}
-      className={`flex gap-3 ${
-        isUser
-          ? "justify-end"
-          : "justify-start"
-      }`}
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.2 }}
+      className={`flex items-start gap-2.5 ${isUser ? "justify-end" : "justify-start"}`}
     >
       {!isUser && (
-        <Avatar className="h-9 w-9 shrink-0">
-          <AvatarFallback>
-            <Bot size={18} />
-          </AvatarFallback>
-        </Avatar>
+        <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+          <Bot className="h-3 w-3 text-primary" />
+        </div>
       )}
 
       <div
-        className={`max-w-3xl rounded-3xl px-5 py-4 shadow-sm ${
+        className={`max-w-lg rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed shadow-sm ${
           isUser
             ? "bg-primary text-primary-foreground"
             : "border bg-card"
@@ -85,77 +50,43 @@ export default function ChatMessage({
         <ReactMarkdown
           remarkPlugins={[remarkGfm]}
           components={{
-            code(props) {
-              const {
-                children,
-                className,
-              } = props;
-
-              const match =
-                /language-(\w+)/.exec(
-                  className || ""
+            p: ({ children }) => <p className="mb-1 last:mb-0">{children}</p>,
+            code({ className, children, ...props }) {
+              const match = /language-(\w+)/.exec(className || "");
+              if (match) {
+                return (
+                  <SyntaxHighlighter
+                    style={oneDark}
+                    language={match[1]}
+                    PreTag="div"
+                    customStyle={{ fontSize: "0.8rem", borderRadius: "0.5rem", margin: "0.5rem 0" }}
+                  >
+                    {String(children).replace(/\n$/, "")}
+                  </SyntaxHighlighter>
                 );
-
-              return match ? (
-                <SyntaxHighlighter
-                  style={oneDark}
-                  language={match[1]}
-                  PreTag="div"
-                >
-                  {String(children).replace(
-                    /\n$/,
-                    ""
-                  )}
-                </SyntaxHighlighter>
-              ) : (
-                <code className="rounded bg-muted px-1 py-0.5">
-                  {children}
-                </code>
-              );
+              }
+              return <code className="rounded bg-muted px-1 py-0.5 text-xs">{children}</code>;
             },
           }}
         >
           {message.content}
         </ReactMarkdown>
 
-        <div className="mt-3 flex items-center justify-between">
-          <p className="text-xs text-muted-foreground">
-            {message.createdAt &&
-              new Date(
-                message.createdAt
-              ).toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
-          </p>
-
-          {!isUser && (
-            <button
-              onClick={handleCopy}
-              className="flex items-center gap-2 text-xs text-muted-foreground transition-colors hover:text-foreground"
-            >
-              {copied ? (
-                <>
-                  <Check size={14} />
-                  Copied
-                </>
-              ) : (
-                <>
-                  <Copy size={14} />
-                  Copy
-                </>
-              )}
-            </button>
-          )}
-        </div>
+        {!isUser && (
+          <button
+            onClick={handleCopy}
+            className="mt-1 flex items-center gap-1 text-[10px] text-muted-foreground/60 transition-colors hover:text-muted-foreground"
+          >
+            {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
+            {copied ? "Copied" : "Copy"}
+          </button>
+        )}
       </div>
 
       {isUser && (
-        <Avatar className="h-9 w-9 shrink-0">
-          <AvatarFallback>
-            <User size={18} />
-          </AvatarFallback>
-        </Avatar>
+        <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-primary/20">
+          <User className="h-3 w-3 text-primary" />
+        </div>
       )}
     </motion.div>
   );

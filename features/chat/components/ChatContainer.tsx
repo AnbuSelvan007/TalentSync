@@ -1,136 +1,76 @@
 "use client";
 
-import {
-  useState,
-  useEffect,
-  useRef,
-} from "react";
-
+import { useState, useRef, useEffect } from "react";
 import { useChatStore } from "@/store/chat-store";
-
+import { motion } from "framer-motion";
+import { MessageSquare, Plus } from "lucide-react";
 import ChatHeader from "./ChatHeader";
-import ChatInput from "./ChatInput";
 import ChatMessage from "./ChatMessage";
+import ChatInput from "./ChatInput";
+import RecentChats from "./RecentChats";
 import ChatWelcome from "./ChatWelcome";
-import TypingIndicator from "./TypingIndicator";
-
-import { generateAIResponse } from "../services/chat.service";
 
 export default function ChatContainer() {
-  const {
-    chats,
-    currentChatId,
-    addMessage,
-  } = useChatStore();
+  const { chats, currentChatId, createChat, addMessage } = useChatStore();
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
-  const currentChat = chats.find(
-    (chat) => chat.id === currentChatId
-  );
-
-  const messages =
-    currentChat?.messages ?? [];
-
-  const [isLoading, setIsLoading] =
-    useState(false);
-
-  const bottomRef =
-    useRef<HTMLDivElement>(null);
+  const currentChat = chats.find((c) => c.id === currentChatId);
+  const messages = currentChat?.messages ?? [];
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({
-      behavior: "smooth",
-    });
-  }, [messages, isLoading]);
-
-  const handleSend = async (
-    content: string
-  ) => {
-    const userMessage = {
-      id: crypto.randomUUID(),
-      role: "user" as const,
-      content,
-      createdAt: new Date().toISOString(),
-    };
-
-    const updatedMessages = [
-      ...messages,
-      userMessage,
-    ];
-
-    addMessage(userMessage);
-
-    try {
-      setIsLoading(true);
-
-      const aiResponse =
-        await generateAIResponse(
-          content,
-          updatedMessages
-        );
-
-      const assistantMessage = {
-        id: crypto.randomUUID(),
-        role: "assistant" as const,
-        content:
-          aiResponse ||
-          "No response received.",
-        createdAt: new Date().toISOString(),
-      };
-
-      addMessage(
-        assistantMessage
-      );
-    } catch (error) {
-      console.error(error);
-
-      const errorMessage = {
-        id: crypto.randomUUID(),
-        role: "assistant" as const,
-        content:
-          "TalentSync AI is currently busy. Please try again.",
-        createdAt: new Date().toISOString(),
-      };
-
-      addMessage(errorMessage);
-    } finally {
-      setIsLoading(false);
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
+  }, [messages]);
+
+  const handleSend = (content: string) => {
+    addMessage({ id: crypto.randomUUID(), role: "user", content, createdAt: new Date().toISOString() });
+    // Simulated AI response — replace with actual API call
+    setTimeout(() => {
+      addMessage({ id: crypto.randomUUID(), role: "assistant", content: "I'm an AI assistant. This is a simulated response.", createdAt: new Date().toISOString() });
+    }, 500);
   };
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex h-[calc(100vh-3.5rem)]">
+      {/* Recent Chats Sidebar */}
+      <RecentChats open={historyOpen} onClose={() => setHistoryOpen(false)} />
 
-      <div className="flex-1 overflow-auto">
+      {/* Main Chat Area */}
+      <div className="flex flex-1 flex-col">
+        {/* Chat Header */}
+        <ChatHeader
+          onHistoryClick={() => setHistoryOpen(true)}
+          onNewChat={createChat}
+          title={currentChat?.title}
+        />
+
         {messages.length === 0 ? (
-          <ChatWelcome
-            onSuggestionClick={
-              handleSend
-            }
-          />
+          /* Welcome screen */
+          <div className="flex flex-1 items-center justify-center">
+            <ChatWelcome
+              onSuggestionClick={(prompt) => handleSend(prompt)}
+            />
+          </div>
         ) : (
-          <div className="mx-auto max-w-5xl space-y-6 p-6">
-            {messages.map(
-              (message) => (
-                <ChatMessage
-                  key={message.id}
-                  message={message}
-                />
-              )
-            )}
-
-            {isLoading && (
-              <TypingIndicator />
-            )}
-
-            <div ref={bottomRef} />
+          /* Messages */
+          <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 md:px-6">
+            <div className="mx-auto max-w-2xl space-y-3">
+              {messages.map((msg) => (
+                <ChatMessage key={msg.id} message={msg} />
+              ))}
+            </div>
           </div>
         )}
-      </div>
 
-      <ChatInput
-        onSend={handleSend}
-        isLoading={isLoading}
-      />
+        {/* Input */}
+        <div className="border-t bg-background/80 backdrop-blur-xl">
+          <div className="mx-auto max-w-2xl px-4 py-3 md:px-6">
+            <ChatInput onSend={handleSend} />
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

@@ -1,13 +1,13 @@
-import ThemeToggle from "@/components/shared/ThemeToggle";
 import { redirect } from "next/navigation";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth/auth.config";
 
-export default function Home() {
-  redirect("/chat");
+export default async function HomePage() {
+  const session = await getServerSession(authOptions);
+
+  if (session) {
+    redirect("/dashboard");
+  }
+
+  redirect("/login");
 }
-// export default function Home() {
-//   return (
-//     <main className="flex min-h-screen items-center justify-center">
-//       <ThemeToggle />
-//     </main>
-//   );
-// }

@@ -4,6 +4,8 @@ import {
   Briefcase,
   Map,
   Settings,
+  Search,
+  FileSignature,
 } from "lucide-react";
 
 export const navigation = [
@@ -21,6 +23,16 @@ export const navigation = [
     title: "Mock Interview",
     href: "/mock-interview",
     icon: Briefcase,
+  },
+  {
+    title: "Job Matcher",
+    href: "/job-match",
+    icon: Search,
+  },
+  {
+    title: "Cover Letter",
+    href: "/cover-letter",
+    icon: FileSignature,
   },
   {
     title: "Roadmap",

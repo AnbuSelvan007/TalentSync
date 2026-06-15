@@ -1,28 +1,17 @@
-// "use client";
-
-// import { ThemeProvider as NextThemesProvider } from "next-themes";
-
-// export function ThemeProvider({
-//   children,
-// }: {
-//   children: React.ReactNode;
-// }) {
-//   return (
-//     <NextThemesProvider
-//       attribute="class"
-//       defaultTheme="dark"
-//       enableSystem
-//     >
-//       {children}
-//     </NextThemesProvider>
-//   );
-// }
 "use client";
 
-export function ThemeProvider({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  return <>{children}</>;
+import { ThemeProvider as NextThemesProvider } from "next-themes";
+
+export function ThemeProvider({ children, ...props }: { children: React.ReactNode; [key: string]: unknown }) {
+  return (
+    <NextThemesProvider
+      attribute="class"
+      defaultTheme="system"
+      enableSystem
+      disableTransitionOnChange={false}
+      {...props}
+    >
+      {children}
+    </NextThemesProvider>
+  );
 }
