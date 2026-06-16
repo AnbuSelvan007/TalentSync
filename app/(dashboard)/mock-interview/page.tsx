@@ -133,7 +133,7 @@ export default function MockInterviewPage() {
     <div className="mx-auto max-w-5xl space-y-8">
       <InterviewHero />
 
-      {storedResult && phase === "setup" && !isLoadingLatest && (
+      {storedResult && questions.length === 0 && !isLoadingLatest && (
         <PastResultBanner
           title={`Mock Interview — ${storedResult.role}`}
           subtitle={`Score: ${storedResult.finalScore}/10 • ${storedResult.questionsCount} questions • ${storedResult.difficulty}`}

@@ -36,16 +36,31 @@ export function useRoadmapGenerator() {
 
   const generate = async () => {
     try {
+      // Validate all fields are non-empty
+      if (!goal.trim() || !skillLevel.trim() || !timeline.trim()) {
+        setError("Please fill in all fields (Career Goal, Skill Level, and Timeline) before generating.");
+        setPhase("error");
+        return;
+      }
+
       setPhase("generating");
+      setResult(null);
       setError(null);
 
-      const data = await fetch("/api/roadmap/generate", {
+      const res = await fetch("/api/roadmap/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ goal, skillLevel, timeline }),
-      }).then((r) => r.json());
+      });
 
-      setResult(data);
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to generate roadmap");
+      }
+
+      // data.roadmap contains the actual RoadmapResult with months
+      setResult(data.roadmap as RoadmapResult);
       setPhase("result");
     } catch (err) {
       console.error("Failed to generate roadmap:", err);

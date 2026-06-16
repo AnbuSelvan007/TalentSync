@@ -11,14 +11,14 @@ export function useJobMatch() {
   const lastFileRef = useRef<File | null>(null);
   const lastJdRef = useRef<string>("");
 
-  const loadLatestLatest = async () => {
+  const loadLatestFromDb = async () => {
     setIsLoadingLatest(true);
     try {
       const res = await fetch("/api/job-match/analyze");
       const data = await res.json();
       if (data.result) {
-        setResult(data.result as unknown as JobMatchResult);
-        setPhase("result");
+        // Don't set result — let the page handle banner display
+        // via its own storedResult state
       }
     } catch (err) {
       console.error("Failed to load latest job match:", err);
@@ -101,6 +101,6 @@ export function useJobMatch() {
     analyze,
     retry,
     reset,
-    loadLatestLatest,
+    loadLatestFromDb,
   };
 }

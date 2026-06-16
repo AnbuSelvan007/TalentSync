@@ -12,14 +12,14 @@ export function useCoverLetterGenerator() {
   const lastFileRef = useRef<File | null>(null);
   const lastJdRef = useRef<string>("");
 
-  const loadLatestLatest = async () => {
+  const loadLatestFromDb = async () => {
     setIsLoadingLatest(true);
     try {
       const res = await fetch("/api/cover-letter/generate");
       const data = await res.json();
       if (data.result?.content) {
-        setCoverLetter(data.result.content);
-        setPhase("result");
+        // Don't set coverLetter or phase — let the page handle banner display
+        // via its own storedLetter state
       }
     } catch (err) {
       console.error("Failed to load latest cover letter:", err);
@@ -98,6 +98,6 @@ export function useCoverLetterGenerator() {
     generate,
     regenerate,
     reset,
-    loadLatestLatest,
+    loadLatestFromDb,
   };
 }

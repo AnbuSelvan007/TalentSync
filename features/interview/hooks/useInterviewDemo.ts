@@ -30,25 +30,6 @@ export function useInterviewDemo() {
   const currentQuestion = questions[currentIndex] ?? null;
   const isLastQuestion = currentIndex >= questions.length - 1;
 
-  // Load latest interview summary from DB
-  useEffect(() => {
-    fetch("/api/interview")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.result?.questions?.length > 0) {
-          const savedQuestions: InterviewQuestion[] = data.result.questions.map((q: string, i: number) => ({
-            id: `q-${i + 1}`,
-            question: q,
-            answer: data.result.answers?.[i] || "",
-            evaluation: data.result.evaluations?.[i] || null,
-          }));
-          setQuestions(savedQuestions);
-          setPhase("summary");
-        }
-      })
-      .catch(() => {});
-  }, []);
-
   const startInterview = useCallback(async () => {
     setIsLoading(true);
     setError(null);

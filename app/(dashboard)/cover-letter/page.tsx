@@ -22,7 +22,7 @@ const defaultApplicant: ApplicantInfo = {
 };
 
 export default function CoverLetterPage() {
-  const { phase, coverLetter, error, generate, regenerate, reset, loadLatestLatest, isLoadingLatest } = useCoverLetterGenerator();
+  const { phase, coverLetter, error, generate, regenerate, reset, loadLatestFromDb, isLoadingLatest } = useCoverLetterGenerator();
   const [applicant, setApplicant] = useState<ApplicantInfo>(defaultApplicant);
   const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [jobDescription, setJobDescription] = useState("");
@@ -30,27 +30,25 @@ export default function CoverLetterPage() {
 
   // Load latest stored result on mount
   useEffect(() => {
-    loadLatestLatest();
+    loadLatestFromDb();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Track stored cover letter separately
+  // Track stored cover letter separately for banner display
   useEffect(() => {
-    if (phase === "form" && !coverLetter) {
-      fetch("/api/cover-letter/generate")
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.result?.content) {
-            setStoredLetter({
-              content: data.result.content,
-              company: data.result.company,
-              role: data.result.role,
-              createdAt: data.result.createdAt,
-            });
-          }
-        })
-        .catch(() => {});
-    }
-  }, [phase, coverLetter]);
+    fetch("/api/cover-letter/generate")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.result?.content) {
+          setStoredLetter({
+            content: data.result.content,
+            company: data.result.company,
+            role: data.result.role,
+            createdAt: data.result.createdAt,
+          });
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const handleDownload = () => {
     const data = storedLetter;
@@ -97,7 +95,7 @@ export default function CoverLetterPage() {
     <div className="mx-auto max-w-5xl space-y-8 py-10">
       <CoverLetterHero />
 
-      {storedLetter && phase === "form" && !isLoadingLatest && (
+      {storedLetter && !coverLetter && !isLoadingLatest && (
         <PastResultBanner
           title={`Cover Letter — ${storedLetter.company || "Company"}`}
           subtitle={storedLetter.role ? `Position: ${storedLetter.role}` : undefined}

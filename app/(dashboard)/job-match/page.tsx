@@ -23,28 +23,26 @@ interface StoredMatch {
 }
 
 export default function JobMatchPage() {
-  const { phase, result, error, analyze, retry, reset, loadLatestLatest, isLoadingLatest } = useJobMatch();
+  const { phase, result, error, analyze, retry, reset, loadLatestFromDb, isLoadingLatest } = useJobMatch();
   const [jobDescription, setJobDescription] = useState("");
   const [storedResult, setStoredResult] = useState<StoredMatch | null>(null);
 
   // Load latest stored result on mount
   useEffect(() => {
-    loadLatestLatest();
+    loadLatestFromDb();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Track stored results separately
+  // Track stored results separately for banner display
   useEffect(() => {
-    if (!result && phase === "input") {
-      fetch("/api/job-match/analyze")
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.result?.matchScore !== undefined) {
-            setStoredResult(data.result as StoredMatch);
-          }
-        })
-        .catch(() => {});
-    }
-  }, [result, phase]);
+    fetch("/api/job-match/analyze")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.result?.matchScore !== undefined) {
+          setStoredResult(data.result as StoredMatch);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const handleDownload = () => {
     const data = storedResult || result;
@@ -62,31 +60,30 @@ export default function JobMatchPage() {
     downloadAsPdf("Job_Match_Analysis", items);
   };
 
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
   const handleFileSelect = useCallback(
     (file: File) => {
-      if (!jobDescription.trim()) {
-        return;
-      }
+      setSelectedFile(file);
       setStoredResult(null);
-      analyze(file, jobDescription);
+      // Auto-analyze if JD already typed
+      if (jobDescription.trim().length >= 10) {
+        analyze(file, jobDescription);
+      }
     },
     [jobDescription, analyze]
   );
 
-  const handleAnalyze = () => {
-    if (phase === "result" || phase === "error") {
-      reset();
-    }
-  };
-
   const isDisabled = phase === "analyzing";
-  const showAnalyzeButton = phase === "input" && jobDescription.trim().length >= 10;
+  const showAnalyzeButton =
+    selectedFile &&
+    jobDescription.trim().length >= 10;
 
   return (
     <div className="mx-auto max-w-5xl space-y-8 py-10">
       <JobMatchHero />
 
-      {storedResult && !result && !isLoadingLatest && phase === "input" && (
+      {storedResult && !result && !isLoadingLatest && (
         <PastResultBanner
           title="Job Match Analysis"
           subtitle={`Match Score: ${storedResult.matchScore}% • ${storedResult.matchingSkills?.length || 0} matching skills, ${storedResult.suggestions?.length || 0} suggestions`}
@@ -126,11 +123,27 @@ export default function JobMatchPage() {
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex items-center justify-center"
+            className="flex justify-center"
           >
-            <p className="text-sm text-muted-foreground">
-              Upload your resume and paste a job description above, then the analysis will begin automatically.
-            </p>
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => analyze(selectedFile!, jobDescription)}
+              disabled={isDisabled}
+              className="flex w-full max-w-md items-center justify-center gap-2 rounded-2xl bg-primary px-6 py-3.5 text-base font-semibold text-primary-foreground shadow-lg transition-all hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {isDisabled ? (
+                <>
+                  <div className="h-5 w-5 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                  Analyzing...
+                </>
+              ) : (
+                <>
+                  <Wand2 className="h-5 w-5" />
+                  Analyze Match
+                </>
+              )}
+            </motion.button>
           </motion.div>
         )}
       </div>
