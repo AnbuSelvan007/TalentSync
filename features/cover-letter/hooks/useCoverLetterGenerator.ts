@@ -7,9 +7,26 @@ export function useCoverLetterGenerator() {
   const [phase, setPhase] = useState<CoverLetterPhase>("form");
   const [coverLetter, setCoverLetter] = useState<string | null>(null);
   const [error, setError] = useState<{ message: string; detail?: string } | null>(null);
+  const [isLoadingLatest, setIsLoadingLatest] = useState(false);
   const lastApplicantRef = useRef<ApplicantInfo | null>(null);
   const lastFileRef = useRef<File | null>(null);
   const lastJdRef = useRef<string>("");
+
+  const loadLatestLatest = async () => {
+    setIsLoadingLatest(true);
+    try {
+      const res = await fetch("/api/cover-letter/generate");
+      const data = await res.json();
+      if (data.result?.content) {
+        setCoverLetter(data.result.content);
+        setPhase("result");
+      }
+    } catch (err) {
+      console.error("Failed to load latest cover letter:", err);
+    } finally {
+      setIsLoadingLatest(false);
+    }
+  };
 
   const generate = async (applicant: ApplicantInfo, file: File, jobDescription: string) => {
     setPhase("generating");
@@ -77,8 +94,10 @@ export function useCoverLetterGenerator() {
     phase,
     coverLetter,
     error,
+    isLoadingLatest,
     generate,
     regenerate,
     reset,
+    loadLatestLatest,
   };
 }

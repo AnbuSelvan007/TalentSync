@@ -1,7 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUserId, unauthorized } from "@/lib/auth/session";
 import { generateRoadmapAction } from "@/features/roadmap/actions/generate-roadmap";
-import { saveRoadmap } from "@/services/roadmap.service";
+import { saveRoadmap, getLatestRoadmap } from "@/services/roadmap.service";
+
+export async function GET() {
+  try {
+    const userId = await getCurrentUserId();
+    if (!userId) return unauthorized();
+
+    const latest = await getLatestRoadmap(userId);
+    return NextResponse.json({ result: latest });
+  } catch (error) {
+    console.error("GET /api/roadmap/generate error:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {

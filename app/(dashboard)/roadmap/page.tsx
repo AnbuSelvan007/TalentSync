@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import RoadmapHero from "@/features/roadmap/components/RoadmapHero";
 import GoalSelectionCard from "@/features/roadmap/components/GoalSelectionCard";
@@ -7,6 +8,8 @@ import EmptyRoadmapState from "@/features/roadmap/components/EmptyRoadmapState";
 import RoadmapTimeline from "@/features/roadmap/components/RoadmapTimeline";
 import ErrorCard from "@/features/roadmap/components/ErrorCard";
 import { useRoadmapGenerator } from "@/features/roadmap/hooks/useRoadmapGenerator";
+import PastResultBanner, { downloadAsPdf } from "@/components/shared/PastResultBanner";
+import type { RoadmapMonth } from "@/features/roadmap/types/roadmap.types";
 
 export default function RoadmapPage() {
   const {
@@ -21,9 +24,69 @@ export default function RoadmapPage() {
     setTimeline,
     generate,
     reset,
+    loadLatest,
+    isLoadingLatest,
   } = useRoadmapGenerator();
 
+  const [storedResult, setStoredResult] = useState<{
+    goal: string;
+    timeline: string;
+    months: RoadmapMonth[];
+    createdAt?: string;
+  } | null>(null);
+
+  // Load latest stored result on mount
+  useEffect(() => {
+    loadLatest();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Check for stored result separately for the banner
+  useEffect(() => {
+    if (!result && phase === "setup") {
+      fetch("/api/roadmap/generate")
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.result?.roadmap?.months?.length > 0) {
+            setStoredResult({
+              goal: data.result.goal,
+              timeline: data.result.timeline,
+              months: data.result.roadmap.months,
+              createdAt: data.result.createdAt,
+            });
+          }
+        })
+        .catch(() => {});
+    }
+  }, [result, phase]);
+
   const isGenerating = phase === "generating";
+
+  const handleDownload = () => {
+    const data = storedResult || (result ? { goal, timeline: timeline, months: result.months } : null);
+    if (!data) return;
+    const monthsHtml = data.months.map((m) => `
+      <div class="month-card">
+        <h3>Month ${m.month}: ${m.title}</h3>
+        ${m.topics.map((t) => `
+          <div class="topic">
+            <strong>${t.name}</strong> — ${t.description}
+          </div>
+        `).join("")}
+      </div>
+    `).join("\n");
+    const items = [
+      `<h1>Learning Roadmap</h1>`,
+      `<p><strong>Goal:</strong> ${data.goal}</p>`,
+      `<p><strong>Timeline:</strong> ${data.timeline}</p>`,
+      data.createdAt ? `<p><strong>Date:</strong> ${new Date(data.createdAt).toLocaleDateString()}</p>` : "",
+      ...monthsHtml,
+    ].join("\n");
+    downloadAsPdf(`Roadmap_${(data.goal || "goal").replace(/\s+/g, "_")}`, items);
+  };
+
+  const handleDismiss = () => {
+    setStoredResult(null);
+  };
 
   return (
     <motion.div
@@ -33,6 +96,34 @@ export default function RoadmapPage() {
     >
       {/* Hero Section */}
       <RoadmapHero />
+
+      {/* Past Result Banner */}
+      {storedResult && !result && !isGenerating && (
+        <PastResultBanner
+          title={`Learning Roadmap — ${storedResult.goal}`}
+          subtitle={`${storedResult.timeline} • ${storedResult.months.length} months`}
+          onDownload={handleDownload}
+        >
+          <div className="flex gap-2">
+            <button
+              onClick={() => {
+                setStoredResult(null);
+                reset();
+              }}
+              className="text-xs text-primary underline underline-offset-2 hover:text-primary/80"
+            >
+              Generate new roadmap
+            </button>
+            <span className="text-xs text-muted-foreground">·</span>
+            <button
+              onClick={handleDismiss}
+              className="text-xs text-muted-foreground underline underline-offset-2 hover:text-foreground"
+            >
+              Dismiss
+            </button>
+          </div>
+        </PastResultBanner>
+      )}
 
       {/* Configuration Card */}
       <GoalSelectionCard
@@ -77,7 +168,7 @@ export default function RoadmapPage() {
       )}
 
       {/* Empty State */}
-      {phase === "setup" && !result && <EmptyRoadmapState />}
+      {phase === "setup" && !result && !storedResult && !isLoadingLatest && <EmptyRoadmapState />}
     </motion.div>
   );
 }

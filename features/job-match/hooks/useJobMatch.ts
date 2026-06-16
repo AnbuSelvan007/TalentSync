@@ -7,8 +7,25 @@ export function useJobMatch() {
   const [phase, setPhase] = useState<JobMatchPhase>("input");
   const [result, setResult] = useState<JobMatchResult | null>(null);
   const [error, setError] = useState<{ message: string; detail?: string } | null>(null);
+  const [isLoadingLatest, setIsLoadingLatest] = useState(false);
   const lastFileRef = useRef<File | null>(null);
   const lastJdRef = useRef<string>("");
+
+  const loadLatestLatest = async () => {
+    setIsLoadingLatest(true);
+    try {
+      const res = await fetch("/api/job-match/analyze");
+      const data = await res.json();
+      if (data.result) {
+        setResult(data.result as unknown as JobMatchResult);
+        setPhase("result");
+      }
+    } catch (err) {
+      console.error("Failed to load latest job match:", err);
+    } finally {
+      setIsLoadingLatest(false);
+    }
+  };
 
   const isAnalysisEmpty = (r: JobMatchResult) =>
     r.matchScore === 0 &&
@@ -80,8 +97,10 @@ export function useJobMatch() {
     phase,
     result,
     error,
+    isLoadingLatest,
     analyze,
     retry,
     reset,
+    loadLatestLatest,
   };
 }

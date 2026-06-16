@@ -8,7 +8,6 @@ import type {
   RoadmapResult,
   RoadmapPhase,
 } from "@/features/roadmap/types/roadmap.types";
-import { generateRoadmapAction } from "@/features/roadmap/actions/generate-roadmap";
 
 export function useRoadmapGenerator() {
   const [goal, setGoal] = useState<Goal>("Full Stack Developer");
@@ -17,13 +16,35 @@ export function useRoadmapGenerator() {
   const [result, setResult] = useState<RoadmapResult | null>(null);
   const [phase, setPhase] = useState<RoadmapPhase>("setup");
   const [error, setError] = useState<string | null>(null);
+  const [isLoadingLatest, setIsLoadingLatest] = useState(false);
+
+  const loadLatest = async () => {
+    setIsLoadingLatest(true);
+    try {
+      const res = await fetch("/api/roadmap/generate");
+      const data = await res.json();
+      if (data.result) {
+        setResult(data.result.roadmap as RoadmapResult);
+        setPhase("result");
+      }
+    } catch (err) {
+      console.error("Failed to load latest roadmap:", err);
+    } finally {
+      setIsLoadingLatest(false);
+    }
+  };
 
   const generate = async () => {
     try {
       setPhase("generating");
       setError(null);
 
-      const data = await generateRoadmapAction(goal, skillLevel, timeline);
+      const data = await fetch("/api/roadmap/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ goal, skillLevel, timeline }),
+      }).then((r) => r.json());
+
       setResult(data);
       setPhase("result");
     } catch (err) {
@@ -46,10 +67,12 @@ export function useRoadmapGenerator() {
     result,
     phase,
     error,
+    isLoadingLatest,
     setGoal,
     setSkillLevel,
     setTimeline,
     generate,
+    loadLatest,
     reset,
   };
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Loader2, AlertOctagon, RefreshCw } from "lucide-react";
 import InterviewHero from "@/features/interview/components/InterviewHero";
@@ -10,6 +11,7 @@ import AnswerInput from "@/features/interview/components/AnswerInput";
 import EvaluationCard from "@/features/interview/components/EvaluationCard";
 import InterviewSummary from "@/features/interview/components/InterviewSummary";
 import { useInterviewDemo } from "@/features/interview/hooks/useInterviewDemo";
+import PastResultBanner, { downloadAsPdf } from "@/components/shared/PastResultBanner";
 
 function LoadingCard({ text }: { text: string }) {
   return (
@@ -79,6 +81,46 @@ export default function MockInterviewPage() {
     restart,
   } = useInterviewDemo();
 
+  const [storedResult, setStoredResult] = useState<{
+    role: string;
+    difficulty: string;
+    questionsCount: number;
+    finalScore: number;
+    createdAt?: string;
+  } | null>(null);
+  const [isLoadingLatest, setIsLoadingLatest] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/interview")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.result?.questions?.length > 0 && data.result?.finalScore !== undefined) {
+          setStoredResult({
+            role: data.result.role,
+            difficulty: data.result.difficulty,
+            questionsCount: data.result.questions.length,
+            finalScore: data.result.finalScore,
+            createdAt: data.result.createdAt,
+          });
+        }
+      })
+      .catch(() => {})
+      .finally(() => setIsLoadingLatest(false));
+  }, []);
+
+  const handleDownload = () => {
+    if (!storedResult) return;
+    const items = [
+      `<h1>Mock Interview Summary</h1>`,
+      `<p><strong>Role:</strong> ${storedResult.role}</p>`,
+      `<p><strong>Difficulty:</strong> ${storedResult.difficulty}</p>`,
+      `<p><strong>Questions:</strong> ${storedResult.questionsCount}</p>`,
+      storedResult.createdAt ? `<p><strong>Date:</strong> ${new Date(storedResult.createdAt).toLocaleDateString()}</p>` : "",
+      `<div class="section"><h2>Final Score</h2><div class="score ${storedResult.finalScore >= 7 ? 'score-high' : storedResult.finalScore >= 4 ? 'score-medium' : 'score-low'}">${storedResult.finalScore}/10</div></div>`,
+    ].join("\n");
+    downloadAsPdf(`Mock_Interview_${storedResult.role}`, items);
+  };
+
   const handleRetry = () => {
     if (phase === "setup" || questions.length === 0) {
       startInterview();
@@ -90,6 +132,24 @@ export default function MockInterviewPage() {
   return (
     <div className="mx-auto max-w-5xl space-y-8">
       <InterviewHero />
+
+      {storedResult && phase === "setup" && !isLoadingLatest && (
+        <PastResultBanner
+          title={`Mock Interview — ${storedResult.role}`}
+          subtitle={`Score: ${storedResult.finalScore}/10 • ${storedResult.questionsCount} questions • ${storedResult.difficulty}`}
+          onDownload={handleDownload}
+        >
+          <button
+            onClick={() => {
+              setStoredResult(null);
+              restart();
+            }}
+            className="text-xs text-primary underline underline-offset-2 hover:text-primary/80"
+          >
+            Start a new interview
+          </button>
+        </PastResultBanner>
+      )}
 
       {phase === "setup" && (
         <>

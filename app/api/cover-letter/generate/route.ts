@@ -1,11 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
 import path from "path";
 import { pathToFileURL } from "url";
+import { getCurrentUserId, unauthorized } from "@/lib/auth/session";
 import { coverLetterInputSchema } from "@/features/cover-letter/schemas/cover-letter.schema";
 import { generateCoverLetter } from "@/features/cover-letter/services/cover-letter.service";
+import { saveCoverLetter, getLatestCoverLetter } from "@/services/cover-letter.service";
+
+export async function GET() {
+  try {
+    const userId = await getCurrentUserId();
+    if (!userId) return unauthorized();
+
+    const latest = await getLatestCoverLetter(userId);
+    return NextResponse.json({ result: latest });
+  } catch (error) {
+    console.error("GET /api/cover-letter/generate error:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
+    const userId = await getCurrentUserId();
+    if (!userId) return unauthorized();
+
     const contentType = request.headers.get("content-type") || "";
 
     let applicant: { fullName: string; role: string; company: string; experience: string };
@@ -84,9 +102,20 @@ export async function POST(request: NextRequest) {
 
     const coverLetter = await generateCoverLetter(applicant, resumeText, jobDescription);
 
+    // Save to DB (replaces old)
+    await saveCoverLetter(userId, {
+      company: applicant.company,
+      role: applicant.role,
+      applicantName: applicant.fullName,
+      content: coverLetter,
+    });
+
     return NextResponse.json({ coverLetter });
   } catch (error) {
     console.error("Cover letter generation API error:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
   }
 }

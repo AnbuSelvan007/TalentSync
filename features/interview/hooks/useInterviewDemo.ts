@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import type {
   InterviewSetup,
   InterviewQuestion,
@@ -25,9 +25,29 @@ export function useInterviewDemo() {
   const [showEvaluation, setShowEvaluation] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   const currentQuestion = questions[currentIndex] ?? null;
   const isLastQuestion = currentIndex >= questions.length - 1;
+
+  // Load latest interview summary from DB
+  useEffect(() => {
+    fetch("/api/interview")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.result?.questions?.length > 0) {
+          const savedQuestions: InterviewQuestion[] = data.result.questions.map((q: string, i: number) => ({
+            id: `q-${i + 1}`,
+            question: q,
+            answer: data.result.answers?.[i] || "",
+            evaluation: data.result.evaluations?.[i] || null,
+          }));
+          setQuestions(savedQuestions);
+          setPhase("summary");
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const startInterview = useCallback(async () => {
     setIsLoading(true);
@@ -119,6 +139,28 @@ export function useInterviewDemo() {
     }
   }, [currentQuestion, currentIndex, answer, setup]);
 
+  // Save summary to DB when reaching summary phase
+  useEffect(() => {
+    if (phase === "summary" && questions.length > 0 && !isSaving) {
+      setIsSaving(true);
+      const avgScore = questions.reduce((sum, q) => sum + (q.evaluation?.score ?? 0), 0) / questions.length;
+
+      fetch("/api/interview", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "save-summary",
+          role: setup.role,
+          difficulty: setup.difficulty,
+          questions: questions.map((q) => q.question),
+          answers: questions.map((q) => q.answer),
+          evaluations: questions.map((q) => q.evaluation),
+          finalScore: Math.round(avgScore),
+        }),
+      }).catch((err) => console.error("Failed to save interview summary:", err));
+    }
+  }, [phase, questions, setup, isSaving]);
+
   const nextQuestion = useCallback(() => {
     if (isLastQuestion) {
       setPhase("summary");
@@ -138,6 +180,7 @@ export function useInterviewDemo() {
     setShowEvaluation(false);
     setIsLoading(false);
     setError(null);
+    setIsSaving(false);
   }, []);
 
   return {

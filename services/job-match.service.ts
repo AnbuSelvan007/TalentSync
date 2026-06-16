@@ -9,9 +9,18 @@ export async function saveJobMatch(userId: string, data: {
   matchingSkills: string[];
   missingSkills: string[];
   suggestions: string[];
+  keywordsFound?: string[];
+  keywordsMissing?: string[];
 }) {
   await connectDB();
+  // Keep only the latest — delete old, create new
+  await JobMatchModel.deleteMany({ userId });
   return JobMatchModel.create({ userId: new mongoose.Types.ObjectId(userId), ...data });
+}
+
+export async function getLatestJobMatch(userId: string) {
+  await connectDB();
+  return JobMatchModel.findOne({ userId }).sort({ createdAt: -1 }).lean();
 }
 
 export async function getJobMatches(userId: string) {
