@@ -39,7 +39,7 @@ export default function RegisterForm() {
     if (res.ok) {
       const signInRes = await signIn("credentials", { email, password, redirect: false });
       if (signInRes?.ok) {
-        router.push("/dashboard");
+        router.push("/");
       } else {
         router.push("/login");
       }
