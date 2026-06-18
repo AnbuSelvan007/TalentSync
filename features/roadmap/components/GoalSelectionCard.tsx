@@ -1,19 +1,51 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Sparkles, Wand2 } from "lucide-react";
-import { GOALS, SKILL_LEVELS, TIMELINES } from "@/features/roadmap/constants/roadmap.constants";
-import type { Goal, SkillLevel, Timeline } from "@/features/roadmap/types/roadmap.types";
+import { Wand2 } from "lucide-react";
+import { PRESET_GOALS, PRESET_SKILL_LEVELS, PRESET_TIMELINES } from "@/features/roadmap/constants/roadmap.constants";
 
 interface Props {
-  goal: Goal;
-  skillLevel: SkillLevel;
-  timeline: Timeline;
-  onGoalChange: (v: Goal) => void;
-  onSkillLevelChange: (v: SkillLevel) => void;
-  onTimelineChange: (v: Timeline) => void;
+  goal: string;
+  skillLevel: string;
+  timeline: string;
+  onGoalChange: (v: string) => void;
+  onSkillLevelChange: (v: string) => void;
+  onTimelineChange: (v: string) => void;
   onGenerate: () => void;
   disabled?: boolean;
+}
+
+interface SuggestionInputProps {
+  value: string;
+  onChange: (v: string) => void;
+  suggestions: string[];
+  label: string;
+  disabled?: boolean;
+  id: string;
+}
+
+function SuggestionInput({ value, onChange, suggestions, label, disabled, id }: SuggestionInputProps) {
+  const datalistId = `${id}-suggestions`;
+
+  return (
+    <div className="space-y-2">
+      <label className="text-sm font-medium text-muted-foreground">{label}</label>
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        list={datalistId}
+        disabled={disabled}
+        placeholder="Type or select..."
+        className="w-full rounded-xl border bg-background px-4 py-2.5 text-sm outline-none transition-colors focus:border-primary disabled:opacity-50 dark:border-zinc-700"
+      />
+      <datalist id={datalistId}>
+        {suggestions.map((s) => (
+          <option key={s} value={s} />
+        ))}
+      </datalist>
+    </div>
+  );
 }
 
 export default function GoalSelectionCard({
@@ -36,50 +68,32 @@ export default function GoalSelectionCard({
       <h2 className="mb-6 text-xl font-semibold">Configure Your Roadmap</h2>
 
       <div className="grid gap-6 sm:grid-cols-3">
-        {/* Goal */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-muted-foreground">Career Goal</label>
-          <select
-            value={goal}
-            onChange={(e) => onGoalChange(e.target.value as Goal)}
-            disabled={disabled}
-            className="w-full rounded-xl border bg-background px-4 py-2.5 text-sm outline-none transition-colors focus:border-primary disabled:opacity-50 dark:border-zinc-700"
-          >
-            {GOALS.map((g) => (
-              <option key={g} value={g}>{g}</option>
-            ))}
-          </select>
-        </div>
+        <SuggestionInput
+          id="goal"
+          value={goal}
+          onChange={onGoalChange}
+          suggestions={PRESET_GOALS}
+          label="Career Goal"
+          disabled={disabled}
+        />
 
-        {/* Skill Level */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-muted-foreground">Current Skill Level</label>
-          <select
-            value={skillLevel}
-            onChange={(e) => onSkillLevelChange(e.target.value as SkillLevel)}
-            disabled={disabled}
-            className="w-full rounded-xl border bg-background px-4 py-2.5 text-sm outline-none transition-colors focus:border-primary disabled:opacity-50 dark:border-zinc-700"
-          >
-            {SKILL_LEVELS.map((s) => (
-              <option key={s} value={s}>{s}</option>
-            ))}
-          </select>
-        </div>
+        <SuggestionInput
+          id="skill-level"
+          value={skillLevel}
+          onChange={onSkillLevelChange}
+          suggestions={PRESET_SKILL_LEVELS}
+          label="Current Skill Level"
+          disabled={disabled}
+        />
 
-        {/* Timeline */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-muted-foreground">Timeline</label>
-          <select
-            value={timeline}
-            onChange={(e) => onTimelineChange(e.target.value as Timeline)}
-            disabled={disabled}
-            className="w-full rounded-xl border bg-background px-4 py-2.5 text-sm outline-none transition-colors focus:border-primary disabled:opacity-50 dark:border-zinc-700"
-          >
-            {TIMELINES.map((t) => (
-              <option key={t} value={t}>{t}</option>
-            ))}
-          </select>
-        </div>
+        <SuggestionInput
+          id="timeline"
+          value={timeline}
+          onChange={onTimelineChange}
+          suggestions={PRESET_TIMELINES}
+          label="Timeline"
+          disabled={disabled}
+        />
       </div>
 
       <motion.button

@@ -12,7 +12,14 @@ export async function saveResumeAnalysis(userId: string, data: {
   atsScore: number;
 }) {
   await connectDB();
+  // Keep only the latest — delete old, create new
+  await ResumeAnalysisModel.deleteMany({ userId });
   return ResumeAnalysisModel.create({ userId: new mongoose.Types.ObjectId(userId), ...data });
+}
+
+export async function getLatestResumeAnalysis(userId: string) {
+  await connectDB();
+  return ResumeAnalysisModel.findOne({ userId }).sort({ createdAt: -1 }).lean();
 }
 
 export async function getResumeAnalyses(userId: string) {

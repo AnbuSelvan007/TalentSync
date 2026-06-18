@@ -50,7 +50,9 @@ Generate a structured, detailed learning roadmap for the following:
 - Current Skill Level: {SKILL_LEVEL}
 - Timeline: {TIMELINE}
 
-The roadmap should span {MONTHS} months. For each month, provide:
+IMPORTANT: Generate EXACTLY {MONTHS} months — not fewer, not more. The roadmap MUST contain precisely the number of month entries shown below.
+
+The roadmap should span EXACTLY {MONTHS} months. For each month, provide:
 1. A meaningful month title
 2. 3-6 specific topics to learn
 3. For each topic, a brief description and 2-3 recommended resources (mix of video tutorials, documentation, articles, and practice platforms)
@@ -76,6 +78,8 @@ Return ONLY valid JSON in this exact format:
   ]
 }
 
+The "months" array MUST contain exactly {MONTHS} objects. Do NOT generate more or fewer than {MONTHS} items.
+
 Rules:
 - Be specific and practical. Include real technologies, frameworks, and tools.
 - Start with fundamentals and progressively increase complexity.
@@ -83,6 +87,7 @@ Rules:
 - For Intermediate: skip basics, focus on deeper concepts and real-world projects.
 - For Advanced: focus on architecture, performance, system design, and advanced patterns.
 - Adjust the depth and number of topics based on the timeline length.
+- CRITICAL: The months array must have EXACTLY {MONTHS} entries. Count them before returning.
 - Return ONLY the JSON object, no markdown, no code fences, no explanations.
 `;
 

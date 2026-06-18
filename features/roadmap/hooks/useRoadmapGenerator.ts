@@ -8,7 +8,6 @@ import type {
   RoadmapResult,
   RoadmapPhase,
 } from "@/features/roadmap/types/roadmap.types";
-import { generateRoadmapAction } from "@/features/roadmap/actions/generate-roadmap";
 
 export function useRoadmapGenerator() {
   const [goal, setGoal] = useState<Goal>("Full Stack Developer");
@@ -17,14 +16,51 @@ export function useRoadmapGenerator() {
   const [result, setResult] = useState<RoadmapResult | null>(null);
   const [phase, setPhase] = useState<RoadmapPhase>("setup");
   const [error, setError] = useState<string | null>(null);
+  const [isLoadingLatest, setIsLoadingLatest] = useState(false);
+
+  const loadLatest = async () => {
+    setIsLoadingLatest(true);
+    try {
+      const res = await fetch("/api/roadmap/generate");
+      const data = await res.json();
+      if (data.result) {
+        setResult(data.result.roadmap as RoadmapResult);
+        setPhase("result");
+      }
+    } catch (err) {
+      console.error("Failed to load latest roadmap:", err);
+    } finally {
+      setIsLoadingLatest(false);
+    }
+  };
 
   const generate = async () => {
     try {
+      // Validate all fields are non-empty
+      if (!goal.trim() || !skillLevel.trim() || !timeline.trim()) {
+        setError("Please fill in all fields (Career Goal, Skill Level, and Timeline) before generating.");
+        setPhase("error");
+        return;
+      }
+
       setPhase("generating");
+      setResult(null);
       setError(null);
 
-      const data = await generateRoadmapAction(goal, skillLevel, timeline);
-      setResult(data);
+      const res = await fetch("/api/roadmap/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ goal, skillLevel, timeline }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to generate roadmap");
+      }
+
+      // data.roadmap contains the actual RoadmapResult with months
+      setResult(data.roadmap as RoadmapResult);
       setPhase("result");
     } catch (err) {
       console.error("Failed to generate roadmap:", err);
@@ -46,10 +82,12 @@ export function useRoadmapGenerator() {
     result,
     phase,
     error,
+    isLoadingLatest,
     setGoal,
     setSkillLevel,
     setTimeline,
     generate,
+    loadLatest,
     reset,
   };
 }

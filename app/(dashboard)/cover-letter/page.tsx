@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Wand2 } from "lucide-react";
 import CoverLetterHero from "@/features/cover-letter/components/CoverLetterHero";
@@ -12,6 +12,7 @@ import GeneratedLetterCard from "@/features/cover-letter/components/GeneratedLet
 import ErrorCard from "@/features/cover-letter/components/ErrorCard";
 import { useCoverLetterGenerator } from "@/features/cover-letter/hooks/useCoverLetterGenerator";
 import type { ApplicantInfo } from "@/features/cover-letter/types/cover-letter.types";
+import PastResultBanner, { downloadAsPdf } from "@/components/shared/PastResultBanner";
 
 const defaultApplicant: ApplicantInfo = {
   fullName: "",
@@ -21,10 +22,47 @@ const defaultApplicant: ApplicantInfo = {
 };
 
 export default function CoverLetterPage() {
-  const { phase, coverLetter, error, generate, regenerate, reset } = useCoverLetterGenerator();
+  const { phase, coverLetter, error, generate, regenerate, reset, loadLatestFromDb, isLoadingLatest } = useCoverLetterGenerator();
   const [applicant, setApplicant] = useState<ApplicantInfo>(defaultApplicant);
   const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [jobDescription, setJobDescription] = useState("");
+  const [storedLetter, setStoredLetter] = useState<{ content: string; company?: string; role?: string; createdAt?: string } | null>(null);
+
+  // Load latest stored result on mount
+  useEffect(() => {
+    loadLatestFromDb();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Track stored cover letter separately for banner display
+  useEffect(() => {
+    fetch("/api/cover-letter/generate")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.result?.content) {
+          setStoredLetter({
+            content: data.result.content,
+            company: data.result.company,
+            role: data.result.role,
+            createdAt: data.result.createdAt,
+          });
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const handleDownload = () => {
+    const data = storedLetter;
+    if (!data) return;
+    const items = [
+      `<h1>Cover Letter</h1>`,
+      data.company ? `<p><strong>Company:</strong> ${data.company}</p>` : "",
+      data.role ? `<p><strong>Position:</strong> ${data.role}</p>` : "",
+      data.createdAt ? `<p><strong>Date:</strong> ${new Date(data.createdAt).toLocaleDateString()}</p>` : "",
+      `<hr style="margin: 16px 0" />`,
+      `<pre style="font-family: 'Georgia', serif; line-height: 1.8; font-size: 14px;">${data.content}</pre>`,
+    ].join("\n");
+    downloadAsPdf(`Cover_Letter_${(data.company || "company").replace(/\s+/g, "_")}`, items);
+  };
 
   const isGenerating = phase === "generating";
   const canGenerate =
@@ -37,6 +75,7 @@ export default function CoverLetterPage() {
 
   const handleGenerate = () => {
     if (!resumeFile || !canGenerate) return;
+    setStoredLetter(null);
     generate(applicant, resumeFile, jobDescription);
   };
 
@@ -49,11 +88,36 @@ export default function CoverLetterPage() {
     setApplicant(defaultApplicant);
     setResumeFile(null);
     setJobDescription("");
+    setStoredLetter(null);
   };
 
   return (
     <div className="mx-auto max-w-5xl space-y-8 py-10">
       <CoverLetterHero />
+
+      {storedLetter && !coverLetter && !isLoadingLatest && (
+        <PastResultBanner
+          title={`Cover Letter — ${storedLetter.company || "Company"}`}
+          subtitle={storedLetter.role ? `Position: ${storedLetter.role}` : undefined}
+          onDownload={handleDownload}
+        >
+          <div className="flex gap-2">
+            <button
+              onClick={handleNew}
+              className="text-xs text-primary underline underline-offset-2 hover:text-primary/80"
+            >
+              Generate a new cover letter
+            </button>
+            <span className="text-xs text-muted-foreground">·</span>
+            <button
+              onClick={() => setStoredLetter(null)}
+              className="text-xs text-muted-foreground underline underline-offset-2 hover:text-foreground"
+            >
+              Dismiss
+            </button>
+          </div>
+        </PastResultBanner>
+      )}
 
       {/* Form Phase */}
       {phase !== "result" && (
@@ -130,7 +194,7 @@ export default function CoverLetterPage() {
       )}
 
       {/* Empty / Ready State (only shown in form phase) */}
-      {phase === "form" && !resumeFile && !jobDescription && (
+      {phase === "form" && !resumeFile && !jobDescription && !storedLetter && !isLoadingLatest && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
