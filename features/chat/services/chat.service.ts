@@ -1,40 +1,37 @@
-import { ai } from "@/lib/ai/gemini";
-import { SYSTEM_PROMPT } from "@/lib/ai/prompts";
-import { buildConversationContext }
-  from "@/lib/ai/context-manager";
-interface Message {
-  role: "user" | "assistant";
-  content: string;
-}
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth/auth.config";
+import {
+  addMessage,
+  generateRAGResponse,
+} from "@/services/chat.service";
 
+/**
+ * Generate an AI response using the canonical RAG pipeline.
+ * This is a thin wrapper around services/chat.service.ts that
+ * adds session-based authentication.
+ *
+ * @deprecated Use `askAI` from `@/features/chat/actions/ask-ai` instead.
+ * This function exists for backward compatibility.
+ */
 export async function generateAIResponse(
-  userMessage: string,
-  messages: Message[]
-) {
-  try {
-    const recentMessages =
-      messages.slice(-10);
-
-   const context =
-  buildConversationContext(
-    messages,
-    userMessage
-  );
-
-    const response =
-      await ai.models.generateContent({
-        model: "gemini-2.5-flash",
-        contents: `
-            ${SYSTEM_PROMPT}
-
-            ${context}
-            `,
-        });
-
-    return response.text;
-  } catch (error) {
-    console.error(error);
-
-    return "TalentSync AI is currently unavailable. Please try again later.";
+  chatId: string,
+  userMessage: string
+): Promise<string> {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) {
+    throw new Error("Unauthorized");
   }
+
+  const userId = session.user.id;
+
+  // Save user message
+  await addMessage(chatId, userId, "user", userMessage);
+
+  // Generate with full RAG
+  const aiResponse = await generateRAGResponse(userId, chatId, userMessage);
+
+  // Save assistant message
+  await addMessage(chatId, userId, "assistant", aiResponse);
+
+  return aiResponse;
 }

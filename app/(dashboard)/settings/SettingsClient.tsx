@@ -5,6 +5,7 @@ import { signOut, useSession } from "next-auth/react";
 import { motion } from "framer-motion";
 import { User, Mail, Lock, LogOut, Trash2, Eye, EyeOff, Loader2, Check, AlertTriangle } from "lucide-react";
 import { useRouter } from "next/navigation";
+import AIMemorySettings from "@/features/settings/components/AIMemorySettings";
 
 export default function SettingsClient() {
   const { data: session, update } = useSession();
@@ -209,6 +210,9 @@ export default function SettingsClient() {
           </button>
         </form>
       </div>
+
+      {/* AI Memory Settings */}
+      <AIMemorySettings />
 
       {/* Logout */}
       <div className="rounded-3xl border bg-card/80 p-6 shadow-sm backdrop-blur-xl">

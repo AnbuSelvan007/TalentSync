@@ -1,18 +1,20 @@
 "use client";
 
 import { useState, KeyboardEvent } from "react";
-import { SendHorizonal } from "lucide-react";
+import { SendHorizonal, Square } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 
 interface ChatInputProps {
   onSend: (message: string) => void;
+  onStop?: () => void;
   isLoading?: boolean;
 }
 
 export default function ChatInput({
   onSend,
+  onStop,
   isLoading
 }: ChatInputProps) {
   const [message, setMessage] = useState("");
@@ -53,20 +55,31 @@ export default function ChatInput({
             className="min-h-[60px] resize-none rounded-2xl pr-14 py-4"
           />
 
-          <Button
-            size="icon"
-            onClick={handleSend}
-            disabled={
-              !message.trim() || isLoading
-            }
-            className="absolute bottom-3 right-3 rounded-xl"
-          >
-            <SendHorizonal className="h-4 w-4" />
-          </Button>
+          {isLoading ? (
+            <Button
+              size="icon"
+              onClick={onStop}
+              className="absolute bottom-3 right-3 rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              aria-label="Stop generating"
+            >
+              <Square className="h-4 w-4 fill-current" />
+            </Button>
+          ) : (
+            <Button
+              size="icon"
+              onClick={handleSend}
+              disabled={!message.trim()}
+              className="absolute bottom-3 right-3 rounded-xl"
+            >
+              <SendHorizonal className="h-4 w-4" />
+            </Button>
+          )}
         </div>
 
         <p className="mt-2 text-center text-xs text-muted-foreground">
-          Press Enter to send • Shift + Enter for new line
+          {isLoading
+            ? "Generating response..."
+            : "Press Enter to send • Shift + Enter for new line"}
         </p>
       </div>
     </div>
