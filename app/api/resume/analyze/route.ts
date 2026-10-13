@@ -58,7 +58,6 @@ export async function POST(request: NextRequest) {
           "node_modules/pdf-parse/node_modules/pdfjs-dist/legacy/build/pdf.worker.mjs"
         );
         PDFParse.setWorker(pathToFileURL(workerPath).href);
-
         const parser = new PDFParse({ data: buffer });
         const result = await parser.getText();
         resumeText = result.text;

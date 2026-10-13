@@ -31,6 +31,42 @@ export default function ChatContainer() {
   const currentChat = chats.find((c) => c.id === currentChatId);
   const messages = currentChat?.messages ?? [];
 
+  // Load user's chats from DB on mount
+  const loadChats = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/chat");
+      if (!res.ok) throw new Error("Failed to load chats");
+      const data = await res.json();
+      setChats(data.chats);
+    } catch (err) {
+      console.error("Failed to load chats:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, [setChats, setLoading]);
+
+  useEffect(() => {
+    loadChats();
+  }, [loadChats]);
+
+  // Load messages when switching to a chat that has no messages yet
+  useEffect(() => {
+    if (!currentChatId || !currentChat) return;
+    // If we have the chat but messages array is empty and it's not a new chat,
+    // fetch from DB
+    if (currentChat.messages.length === 0 && currentChat.createdAt) {
+      fetch(`/api/chat/${currentChatId}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.messages?.length > 0) {
+            setCurrentChat(data);
+          }
+        })
+        .catch((err) => console.error("Failed to load messages:", err));
+    }
+  }, [currentChatId, currentChat, setCurrentChat]);
+
   useEffect(() => {
     if (status === "authenticated" && session?.user?.id) {
       setUserId(session.user.id);

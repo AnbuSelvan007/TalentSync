@@ -23,7 +23,7 @@ export default function ErrorCard({ message, onRetry }: Props) {
           Failed to Generate Roadmap
         </h3>
         <p className="mt-2 max-w-md text-sm text-muted-foreground">
-          { "An unexpected error occurred. Please try again."}
+          {message}
         </p>
         <motion.button
           whileHover={{ scale: 1.02 }}

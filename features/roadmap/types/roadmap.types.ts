@@ -1,13 +1,8 @@
-export type Goal =
-  | "Full Stack Developer"
-  | "Full Stack AI Engineer"
-  | "Frontend Developer"
-  | "Backend Developer"
-  | "Data Analyst";
+export type Goal = string;
 
-export type SkillLevel = "Beginner" | "Intermediate" | "Advanced";
+export type SkillLevel = string;
 
-export type Timeline = "3 Months" | "6 Months" | "12 Months";
+export type Timeline = string;
 
 export interface RoadmapConfig {
   goal: Goal;

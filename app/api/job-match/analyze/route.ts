@@ -1,11 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
 import path from "path";
 import { pathToFileURL } from "url";
+import { getCurrentUserId, unauthorized } from "@/lib/auth/session";
 import { jobMatchInputSchema } from "@/features/job-match/schemas/job-match.schema";
 import { analyzeJobMatch } from "@/features/job-match/services/job-match.service";
+import { saveJobMatch, getLatestJobMatch } from "@/services/job-match.service";
+
+export async function GET() {
+  try {
+    const userId = await getCurrentUserId();
+    if (!userId) return unauthorized();
+
+    const latest = await getLatestJobMatch(userId);
+    return NextResponse.json({ result: latest });
+  } catch (error) {
+    console.error("GET /api/job-match/analyze error:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
+    const userId = await getCurrentUserId();
+    if (!userId) return unauthorized();
+
     const contentType = request.headers.get("content-type") || "";
 
     let resumeText: string;
@@ -91,6 +109,18 @@ export async function POST(request: NextRequest) {
 
     // Analyze the job match
     const result = await analyzeJobMatch(resumeText, jobDescription);
+
+    // Save to DB (replaces old)
+    await saveJobMatch(userId, {
+      company: "Company",
+      role: "Position",
+      matchScore: result.matchScore ?? 0,
+      matchingSkills: result.matchingSkills ?? [],
+      missingSkills: result.missingSkills ?? [],
+      suggestions: result.suggestions ?? [],
+      keywordsFound: result.keywordsFound ?? [],
+      keywordsMissing: result.keywordsMissing ?? [],
+    });
 
     return NextResponse.json(result);
   } catch (error) {

@@ -4,11 +4,11 @@ import { motion } from "framer-motion";
 import { Tags, CheckCircle2, XCircle } from "lucide-react";
 
 interface Props {
-  keywordsFound: string[];
-  keywordsMissing: string[];
+  keywordsFound?: string[];
+  keywordsMissing?: string[];
 }
 
-export default function KeywordAnalysisCard({ keywordsFound, keywordsMissing }: Props) {
+export default function KeywordAnalysisCard({ keywordsFound = [], keywordsMissing = [] }: Props) {
   return (
     <div className="rounded-3xl border bg-gradient-to-br from-violet-500/5 to-purple-500/5 p-6 shadow-sm transition-all hover:shadow-md dark:border-violet-900/30">
       <div className="mb-5 flex items-center gap-3">
