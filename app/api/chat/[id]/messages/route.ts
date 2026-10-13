@@ -26,10 +26,10 @@ export async function POST(
     }
 
     // Save user message to DB
-    const userMessage = await addMessage(id, "user", content.trim());
+    const userMessage = await addMessage(id, userId, "user", content.trim());
 
     // Fetch all previous messages for context
-    const previousMessages = await getChatMessages(id);
+    const previousMessages = await getChatMessages(id, userId);
     const context = buildConversationContext(
       previousMessages.map((m: any) => ({ role: m.role, content: m.content })),
       content
@@ -48,12 +48,12 @@ ${context}
     const aiContent = response.text ?? "Sorry, I couldn't process that request.";
 
     // Save AI response to DB
-    const aiMessage = await addMessage(id, "assistant", aiContent);
+    const aiMessage = await addMessage(id, userId, "assistant", aiContent);
 
     // Auto-generate/update chat title from first user message
     if (chat.title === "New Chat") {
       const titleSuggestion = content.trim().slice(0, 50) + (content.length > 50 ? "..." : "");
-      await updateChatTitle(id, titleSuggestion);
+      await updateChatTitle(id, userId, titleSuggestion);
     }
 
     return NextResponse.json({
