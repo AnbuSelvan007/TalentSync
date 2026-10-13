@@ -1,6 +1,7 @@
 "use client";
 
 import { MessageSquare, Plus, Trash2, Pencil, X, Check } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useChatStore } from "@/store/chat-store";
 import { cn } from "@/lib/utils";
 import { useState, useRef, useEffect } from "react";
@@ -171,13 +172,24 @@ export default function RecentChats({ open, onClose, onNewChat }: RecentChatsPro
         <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
           History
         </span>
-        <button
-          onClick={() => void onNewChat()}
-          aria-label="New chat"
-          className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-        >
-          <Plus className="h-3.5 w-3.5" />
-        </button>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => void onNewChat()}
+            aria-label="New chat"
+            title="New chat"
+            className="hidden md:flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          >
+            <Plus className="h-3.5 w-3.5" />
+          </button>
+          <button
+            onClick={onClose}
+            aria-label="Close history"
+            title="Close history"
+            className="flex md:hidden h-7 w-7 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
       </div>
       <nav className="flex-1 space-y-0.5 overflow-y-auto p-2">
         {chats.map((chat) => (
@@ -205,14 +217,29 @@ export default function RecentChats({ open, onClose, onNewChat }: RecentChatsPro
       </aside>
 
       {/* Mobile drawer */}
-      {open && (
-        <>
-          <div className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm md:hidden" onClick={onClose} />
-          <aside className="fixed inset-y-0 left-0 z-50 w-56 border-r bg-card md:hidden">
-            {sidebarContent}
-          </aside>
-        </>
-      )}
+      <AnimatePresence>
+        {open && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-x-0 bottom-0 top-14 z-20 bg-black/40 backdrop-blur-sm md:hidden"
+              onClick={onClose}
+            />
+            <motion.aside
+              initial={{ x: "-100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "-100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="fixed bottom-0 left-0 top-14 z-20 w-64 border-r bg-card shadow-2xl md:hidden"
+            >
+              {sidebarContent}
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
     </>
   );
 }

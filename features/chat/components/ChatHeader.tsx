@@ -1,6 +1,6 @@
 "use client";
 
-import { Menu, Plus, Sparkles } from "lucide-react";
+import { History, Plus, Sparkles } from "lucide-react";
 
 interface ChatHeaderProps {
   onHistoryClick?: () => void;
@@ -15,9 +15,10 @@ export default function ChatHeader({ onHistoryClick, onNewChat, title }: ChatHea
         <button
           onClick={onHistoryClick}
           aria-label="Chat history"
+          title="Chat history"
           className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground md:hidden"
         >
-          <Menu className="h-3.5 w-3.5" />
+          <History className="h-4 w-4" />
         </button>
         <div className="flex items-center gap-2">
           <Sparkles className="h-4 w-4 text-primary" />

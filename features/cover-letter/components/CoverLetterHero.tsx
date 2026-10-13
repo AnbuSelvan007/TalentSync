@@ -15,10 +15,10 @@ export default function CoverLetterHero() {
           <FileSignature className="h-6 w-6 text-primary" />
         </div>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
+          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl md:text-4xl">
             AI Cover Letter Generator
           </h1>
-          <p className="text-base text-muted-foreground">
+          <p className="text-sm sm:text-base text-muted-foreground">
             Generate personalized cover letters tailored to specific jobs.
           </p>
         </div>

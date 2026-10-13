@@ -81,10 +81,12 @@ export default function ResumeReviewPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Failed to analyze resume");
+        const err = new Error(data.error || "Failed to analyze resume") as Error & { detail?: string };
+        if (data.detail) err.detail = data.detail;
+        throw err;
       }
 
-      const result: ResumeAnalysis = data;
+      const result: ResumeAnalysis = data.analysis || data;
 
       if (isAnalysisEmpty(result)) {
         setError({
@@ -111,7 +113,7 @@ export default function ResumeReviewPage() {
   };
 
   return (
-    <div className="mx-auto max-w-5xl space-y-8 py-10">
+    <div className="mx-auto max-w-4xl space-y-6 px-4 py-6 sm:space-y-8 sm:py-8">
       <ResumeHero />
 
       {storedResult && !analysis && !isLoading && (

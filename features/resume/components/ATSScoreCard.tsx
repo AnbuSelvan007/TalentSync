@@ -34,7 +34,7 @@ export default function ATSScoreCard({ score }: Props) {
   const bgGradient = getBgColor(score);
 
   return (
-    <div className="relative overflow-hidden rounded-3xl border bg-gradient-to-br p-8 shadow-sm transition-all hover:shadow-md dark:border-zinc-800">
+    <div className="relative overflow-hidden rounded-3xl border bg-gradient-to-br p-6 sm:p-8 shadow-sm transition-all hover:shadow-md dark:border-zinc-800">
       {/* Background gradient */}
       <div className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${bgGradient} opacity-50`} />
 

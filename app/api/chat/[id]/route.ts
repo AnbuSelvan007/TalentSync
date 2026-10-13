@@ -17,7 +17,7 @@ export async function GET(
       return NextResponse.json({ error: "Chat not found" }, { status: 404 });
     }
 
-    const messages = await getChatMessages(id);
+    const messages = await getChatMessages(id, userId);
     const mappedMessages = messages.map((msg: any) => ({
       id: msg._id.toString(),
       role: msg.role,
@@ -47,7 +47,7 @@ export async function DELETE(
     if (!userId) return unauthorized();
 
     const { id } = await params;
-    await deleteChat(id);
+    await deleteChat(id, userId);
 
     return NextResponse.json({ success: true });
   } catch (error) {

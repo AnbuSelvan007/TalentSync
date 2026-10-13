@@ -9,7 +9,7 @@ export default function EmptyResumeState() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.2 }}
-      className="rounded-3xl border bg-gradient-to-br from-muted/50 to-background p-16 dark:border-zinc-800"
+      className="rounded-3xl border bg-gradient-to-br from-muted/50 to-background p-8 sm:p-12 md:p-16 dark:border-zinc-800"
     >
       <div className="flex flex-col items-center gap-5">
         <div className="rounded-full bg-primary/5 p-5">

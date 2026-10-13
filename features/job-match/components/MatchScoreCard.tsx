@@ -40,7 +40,7 @@ export default function MatchScoreCard({ score }: Props) {
   const offset = circumference - (score / 100) * circumference;
 
   return (
-    <div className="rounded-3xl border bg-gradient-to-br from-primary/5 to-primary/10 p-6 shadow-sm transition-all hover:shadow-md dark:border-primary/30">
+    <div className="rounded-3xl border bg-gradient-to-br from-primary/5 to-primary/10 p-5 sm:p-6 shadow-sm transition-all hover:shadow-md dark:border-primary/30">
       <div className="mb-5 flex items-center gap-3">
         <div className="rounded-xl bg-primary/10 p-2.5">
           <PieChart className="h-5 w-5 text-primary" />

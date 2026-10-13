@@ -22,7 +22,7 @@ export default function AnswerInput({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="rounded-3xl border bg-card/50 p-6 shadow-sm backdrop-blur dark:border-zinc-800"
+      className="rounded-3xl border bg-card/50 p-4 sm:p-6 shadow-sm backdrop-blur dark:border-zinc-800"
     >
       <label className="mb-3 block text-sm font-medium text-muted-foreground">
         Your Answer
@@ -37,7 +37,7 @@ export default function AnswerInput({
         className="w-full resize-none rounded-2xl border bg-background px-4 py-3 text-sm outline-none transition-colors focus:border-primary disabled:opacity-50 dark:border-zinc-700"
       />
 
-      <div className="mt-4 flex items-center justify-between">
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
         <span className="text-xs text-muted-foreground">
           {value.length} characters
         </span>

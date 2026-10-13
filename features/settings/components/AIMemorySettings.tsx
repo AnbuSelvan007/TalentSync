@@ -91,7 +91,7 @@ export default function AIMemorySettings() {
   };
 
   return (
-    <div className="rounded-3xl border bg-card/80 p-6 shadow-sm backdrop-blur-xl">
+    <div className="rounded-3xl border bg-card/80 p-5 sm:p-6 shadow-sm backdrop-blur-xl">
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-start gap-3">
           <div className="mt-1 flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10">
@@ -119,7 +119,7 @@ export default function AIMemorySettings() {
       ) : (
         <>
           {/* Memory count and clear button */}
-          <div className="mt-4 flex items-center justify-between rounded-2xl bg-muted/50 p-4">
+          <div className="mt-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 rounded-2xl bg-muted/50 p-4">
             <div className="flex items-center gap-2">
               <Database className="h-4 w-4 text-muted-foreground" />
               <span className="text-sm font-medium">{count} memory{count !== 1 ? "ies" : "y"} stored</span>
@@ -169,7 +169,7 @@ export default function AIMemorySettings() {
                     <button
                       onClick={() => handleDeleteMemory(memory._id)}
                       disabled={deletingId === memory._id}
-                      className="shrink-0 rounded-xl p-2 text-muted-foreground opacity-0 transition-all hover:bg-red-500/10 hover:text-red-500 group-hover:opacity-100 disabled:opacity-50"
+                      className="shrink-0 rounded-xl p-2 text-muted-foreground transition-all hover:bg-red-500/10 hover:text-red-500 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 disabled:opacity-50"
                       aria-label="Delete memory"
                     >
                       {deletingId === memory._id ? (

@@ -104,7 +104,7 @@ export default function SettingsClient() {
       <h1 className="text-2xl font-bold tracking-tight">Settings</h1>
 
       {/* Profile */}
-      <div className="rounded-3xl border bg-card/80 p-6 shadow-sm backdrop-blur-xl">
+      <div className="rounded-3xl border bg-card/80 p-5 sm:p-6 shadow-sm backdrop-blur-xl">
         <h2 className="mb-4 text-lg font-semibold tracking-tight">Profile</h2>
         <div className="space-y-4">
           <div className="flex items-center gap-4 rounded-2xl bg-muted/50 p-4">
@@ -119,7 +119,7 @@ export default function SettingsClient() {
 
           <div className="rounded-2xl bg-muted/50 p-4">
             <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Full Name</label>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
               <input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -129,7 +129,7 @@ export default function SettingsClient() {
               <button
                 onClick={handleSaveName}
                 disabled={savingName || !name.trim() || name === user.name}
-                className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-xs font-medium text-primary-foreground transition-all hover:bg-primary/90 disabled:opacity-50"
+                className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-xs font-medium text-primary-foreground transition-all hover:bg-primary/90 disabled:opacity-50"
               >
                 {savingName ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : nameSaved ? <Check className="h-3.5 w-3.5" /> : "Save"}
               </button>
@@ -139,7 +139,7 @@ export default function SettingsClient() {
       </div>
 
       {/* Change Password */}
-      <div className="rounded-3xl border bg-card/80 p-6 shadow-sm backdrop-blur-xl">
+      <div className="rounded-3xl border bg-card/80 p-5 sm:p-6 shadow-sm backdrop-blur-xl">
         <h2 className="mb-4 text-lg font-semibold tracking-tight">Change Password</h2>
         <form onSubmit={handleChangePassword} className="space-y-3">
           <div>
@@ -215,7 +215,7 @@ export default function SettingsClient() {
       <AIMemorySettings />
 
       {/* Logout */}
-      <div className="rounded-3xl border bg-card/80 p-6 shadow-sm backdrop-blur-xl">
+      <div className="rounded-3xl border bg-card/80 p-5 sm:p-6 shadow-sm backdrop-blur-xl">
         <h2 className="mb-4 text-lg font-semibold tracking-tight">Session</h2>
         <button
           onClick={() => signOut({ callbackUrl: "/login" })}
@@ -227,7 +227,7 @@ export default function SettingsClient() {
       </div>
 
       {/* Delete Account */}
-      <div className="rounded-3xl border border-red-500/20 bg-card/80 p-6 shadow-sm backdrop-blur-xl">
+      <div className="rounded-3xl border border-red-500/20 bg-card/80 p-5 sm:p-6 shadow-sm backdrop-blur-xl">
         <div className="flex items-center gap-2">
           <AlertTriangle className="h-4 w-4 text-red-500" />
           <h2 className="text-lg font-semibold tracking-tight text-red-500">Danger Zone</h2>

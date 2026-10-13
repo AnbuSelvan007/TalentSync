@@ -10,7 +10,7 @@ export default async function SettingsPage() {
   if (!session?.user) redirect("/login");
 
   return (
-    <div className="page-container py-10">
+    <div className="mx-auto max-w-4xl space-y-6 px-4 py-6 sm:space-y-8 sm:py-8">
       <SettingsClient />
     </div>
   );

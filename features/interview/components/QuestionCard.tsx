@@ -14,7 +14,7 @@ export default function QuestionCard({ question, questionNumber }: Props) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       key={questionNumber}
-      className="rounded-3xl border bg-gradient-to-br from-primary/5 to-primary/10 p-8 shadow-sm transition-all hover:shadow-md dark:border-primary/20"
+      className="rounded-3xl border bg-gradient-to-br from-primary/5 to-primary/10 p-5 sm:p-8 shadow-sm transition-all hover:shadow-md dark:border-primary/20"
     >
       <div className="flex items-start gap-4">
         <div className="rounded-2xl bg-primary/10 p-3">
