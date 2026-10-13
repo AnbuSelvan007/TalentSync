@@ -9,7 +9,7 @@ export default function GenerationLoader() {
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="rounded-3xl border bg-gradient-to-br from-primary/5 to-primary/10 p-12 dark:border-primary/20"
+      className="rounded-3xl border bg-gradient-to-br from-primary/5 to-primary/10 p-6 sm:p-12 dark:border-primary/20"
     >
       <div className="flex flex-col items-center gap-6">
         <div className="relative">

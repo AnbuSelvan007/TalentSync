@@ -38,7 +38,7 @@ export default function InterviewSummary({ questions, onRestart }: Props) {
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ delay: 0.1 }}
-        className="rounded-3xl border bg-gradient-to-br from-primary/5 to-primary/10 p-8 text-center shadow-sm dark:border-primary/20"
+        className="rounded-3xl border bg-gradient-to-br from-primary/5 to-primary/10 p-5 sm:p-8 text-center shadow-sm dark:border-primary/20"
       >
         <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-primary/10">
           <Trophy className="h-10 w-10 text-primary" />
@@ -46,7 +46,7 @@ export default function InterviewSummary({ questions, onRestart }: Props) {
         <h2 className="text-2xl font-bold">Interview Complete</h2>
         <p className="mt-1 text-muted-foreground">Here is your performance summary</p>
 
-        <div className="mt-6 flex items-center justify-center gap-8">
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-6 sm:gap-8">
           <div className="text-center">
             <p className={`text-5xl font-bold ${level.color}`}>{avgScore}</p>
             <p className="mt-1 text-xs text-muted-foreground">Average Score</p>
@@ -75,7 +75,7 @@ export default function InterviewSummary({ questions, onRestart }: Props) {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="rounded-3xl border bg-card/50 p-6 shadow-sm backdrop-blur dark:border-zinc-800"
+        className="rounded-3xl border bg-card/50 p-4 sm:p-6 shadow-sm backdrop-blur dark:border-zinc-800"
       >
         <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold">
           <TrendingUp className="h-4 w-4 text-primary" />
@@ -108,13 +108,13 @@ export default function InterviewSummary({ questions, onRestart }: Props) {
         </div>
       </motion.div>
 
-      <div className="grid gap-6 sm:grid-cols-2">
+      <div className="grid gap-4 sm:gap-6 sm:grid-cols-2">
         {/* Strengths Summary */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="rounded-3xl border bg-gradient-to-br from-emerald-500/5 to-emerald-600/5 p-6 shadow-sm dark:border-emerald-900/30"
+          className="rounded-3xl border bg-gradient-to-br from-emerald-500/5 to-emerald-600/5 p-5 sm:p-6 shadow-sm dark:border-emerald-900/30"
         >
           <div className="mb-4 flex items-center gap-2">
             <TrendingUp className="h-5 w-5 text-emerald-500" />

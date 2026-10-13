@@ -19,12 +19,12 @@ export default function GeneratedLetterCard({ content, onRegenerate, disabled }:
       animate={{ opacity: 1, y: 0 }}
       className="space-y-4"
     >
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
         <div className="flex items-center gap-2">
           <FileSignature className="h-5 w-5 text-primary" />
           <h2 className="text-xl font-semibold">Your Cover Letter</h2>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <CopyButton text={content} />
           <DownloadButton text={content} />
           <motion.button
@@ -40,7 +40,7 @@ export default function GeneratedLetterCard({ content, onRegenerate, disabled }:
         </div>
       </div>
 
-      <div className="rounded-3xl border bg-card/50 p-8 shadow-lg backdrop-blur dark:border-zinc-800">
+      <div className="rounded-3xl border bg-card/50 p-5 sm:p-8 shadow-lg backdrop-blur dark:border-zinc-800">
         <div className="prose prose-sm max-w-none dark:prose-invert prose-headings:text-foreground prose-p:text-muted-foreground prose-strong:text-foreground">
           <ReactMarkdown>{content}</ReactMarkdown>
         </div>

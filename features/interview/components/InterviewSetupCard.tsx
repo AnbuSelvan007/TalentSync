@@ -35,11 +35,11 @@ export default function InterviewSetupCard({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.1 }}
-      className="rounded-3xl border bg-card/50 p-8 shadow-lg backdrop-blur transition-all hover:shadow-xl dark:border-zinc-800"
+      className="rounded-3xl border bg-card/50 p-5 sm:p-8 shadow-lg backdrop-blur transition-all hover:shadow-xl dark:border-zinc-800"
     >
       <h2 className="mb-6 text-xl font-semibold">Interview Setup</h2>
 
-      <div className="grid gap-6 sm:grid-cols-2">
+      <div className="grid gap-4 sm:gap-6 sm:grid-cols-2">
         {/* Role */}
         <div className="space-y-2">
           <label className="text-sm font-medium text-muted-foreground">Role</label>

@@ -15,7 +15,7 @@ export default function JobDescriptionInput({ value, onChange, disabled }: Props
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.15 }}
-      className="rounded-3xl border bg-card/50 p-6 shadow-lg backdrop-blur transition-all hover:shadow-xl dark:border-zinc-800"
+      className="rounded-3xl border bg-card/50 p-5 sm:p-6 shadow-lg backdrop-blur transition-all hover:shadow-xl dark:border-zinc-800"
     >
       <div className="mb-4 flex items-center gap-2">
         <div className="rounded-xl bg-primary/10 p-2">

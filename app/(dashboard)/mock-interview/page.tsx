@@ -16,7 +16,7 @@ function LoadingCard({ text }: { text: string }) {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="rounded-3xl border bg-gradient-to-br from-primary/5 to-primary/10 p-12 shadow-sm dark:border-primary/20"
+      className="rounded-3xl border bg-gradient-to-br from-primary/5 to-primary/10 p-6 sm:p-12 shadow-sm dark:border-primary/20"
     >
       <div className="flex flex-col items-center gap-5">
         <Loader2 className="h-10 w-10 animate-spin text-primary" />
@@ -36,7 +36,7 @@ function ErrorBanner({ message, onRetry }: { message: string; onRetry?: () => vo
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="flex items-center gap-4 rounded-3xl border border-red-200 bg-gradient-to-br from-red-500/5 to-red-600/5 p-6 shadow-sm dark:border-red-900/30"
+      className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 rounded-3xl border border-red-200 bg-gradient-to-br from-red-500/5 to-red-600/5 p-4 sm:p-6 shadow-sm dark:border-red-900/30"
     >
       <div className="rounded-full bg-red-100 p-3 dark:bg-red-900/30">
         <AlertOctagon className="h-5 w-5 text-red-600 dark:text-red-400" />
@@ -88,7 +88,7 @@ export default function MockInterviewPage() {
   };
 
   return (
-    <div className="mx-auto max-w-5xl space-y-8">
+    <div className="mx-auto max-w-4xl space-y-6 px-4 py-6 sm:space-y-8 sm:py-8">
       <InterviewHero />
 
       {phase === "setup" && (

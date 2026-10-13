@@ -14,7 +14,7 @@ export default function ErrorCard({ error, onRetry, detail }: Props) {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="rounded-3xl border border-red-200 bg-gradient-to-br from-red-500/5 to-red-600/5 p-8 shadow-sm dark:border-red-900/30"
+      className="rounded-3xl border border-red-200 bg-gradient-to-br from-red-500/5 to-red-600/5 p-5 sm:p-8 shadow-sm dark:border-red-900/30"
     >
       <div className="flex flex-col items-center gap-5 text-center">
         <div className="rounded-full bg-red-100 p-4 dark:bg-red-900/30">
@@ -25,7 +25,7 @@ export default function ErrorCard({ error, onRetry, detail }: Props) {
           <p className="text-sm text-red-600/90 dark:text-red-400/90">{error}</p>
           {detail && <p className="text-xs text-red-500/70 dark:text-red-500/70">{detail}</p>}
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
           {onRetry && (
             <button
               onClick={onRetry}

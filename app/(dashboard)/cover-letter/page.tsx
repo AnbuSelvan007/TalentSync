@@ -52,7 +52,7 @@ export default function CoverLetterPage() {
   };
 
   return (
-    <div className="mx-auto max-w-5xl space-y-8 py-10">
+    <div className="mx-auto max-w-4xl space-y-6 px-4 py-6 sm:space-y-8 sm:py-8">
       <CoverLetterHero />
 
       {/* Form Phase */}
